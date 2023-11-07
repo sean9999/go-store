@@ -24,7 +24,7 @@ func main() {
 	})
 
 	animals, _ := myStore.KeyValueCollection(ctx, "animals")
-	animals.Set(ctx, "bird", "chirp")
+	animals.Set(ctx, "bird", []byte("chirp"))
 
 	duckSays, _ := animals.Get(ctx, "duck")
 	fmt.Println("duckSays", duckSays)
@@ -38,11 +38,11 @@ func main() {
 
 	colours, err := myStore.ListCollection(ctx, "colours")
 	barfOn(err, "colours")
-	err = colours.Push(ctx, "green")
+	err = colours.Push(ctx, []byte("green"))
 	barfOn(err, "green")
-	colours.Push(ctx, "blue")
-	colours.Push(ctx, "red")
-	colours.Push(ctx, "yellow")
+	colours.Push(ctx, []byte("blue"))
+	colours.Push(ctx, []byte("red"))
+	colours.Push(ctx, []byte("yellow"))
 
 	all := colours.All(ctx)
 	fmt.Println(all)

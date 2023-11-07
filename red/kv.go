@@ -43,13 +43,13 @@ func (s *Store) KeyValueCollection(ctx context.Context, name string) (essence.Ke
 	return kv, nil
 }
 
-func (kv *KeyValueCollection) Get(ctx context.Context, shortKey string) (any, error) {
+func (kv *KeyValueCollection) Get(ctx context.Context, shortKey string) ([]byte, error) {
 	longKey := fmt.Sprintf("%s:%s", kv.Keyspace(), shortKey)
-	val, err := kv.store.client.Get(ctx, longKey).Result()
+	val, err := kv.store.client.Get(ctx, longKey).Bytes()
 	return val, err
 }
 
-func (kv *KeyValueCollection) Set(ctx context.Context, shortKey string, v any) error {
+func (kv *KeyValueCollection) Set(ctx context.Context, shortKey string, v []byte) error {
 	longKey := fmt.Sprintf("%s:%s", kv.Keyspace(), shortKey)
 	err := kv.store.client.Set(ctx, longKey, v, 0).Err()
 	return err
@@ -65,8 +65,8 @@ func (kv *KeyValueCollection) Keys(ctx context.Context) []string {
 	return r
 }
 
-func (kv *KeyValueCollection) All(ctx context.Context) map[string]any {
-	m := map[string]any{}
+func (kv *KeyValueCollection) All(ctx context.Context) map[string][]byte {
+	m := map[string][]byte{}
 	shortKeys := kv.Keys(ctx)
 	longKeys := make([]string, len(shortKeys))
 	for i, k := range shortKeys {
@@ -75,7 +75,7 @@ func (kv *KeyValueCollection) All(ctx context.Context) map[string]any {
 	}
 	objs := kv.store.client.MGet(ctx, longKeys...).Val()
 	for i, k := range shortKeys {
-		m[k] = objs[i]
+		m[k] = objs[i].([]byte)
 	}
 	return m
 }

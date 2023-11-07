@@ -71,9 +71,9 @@ func TestKeyValueCollection(t *testing.T) {
 		if err != nil {
 			t.Error(err)
 		}
-		animals.Set(ctx, "dog", "bark")
-		animals.Set(ctx, "cat", "meow")
-		animals.Set(ctx, "cow", "moo")
+		animals.Set(ctx, "dog", []byte("bark"))
+		animals.Set(ctx, "cat", []byte("meow"))
+		animals.Set(ctx, "cow", []byte("moo"))
 		want := []string{"dog", "cat", "cow"}
 		got := animals.Keys(ctx)
 		if !hasSameElements(got, want) {

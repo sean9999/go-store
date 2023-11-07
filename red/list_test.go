@@ -55,17 +55,18 @@ func TestListCollection(t *testing.T) {
 		if err != nil {
 			t.Error(err)
 		}
-		colours.Push(ctx, "red")
-		colours.Push(ctx, "blue")
-		colours.Push(ctx, "yellow")
-		colours.Push(ctx, "green")
-		colours.Push(ctx, "purple")
-		colours.Push(ctx, "orange")
-		colours.Push(ctx, "brown")
+
+		colours.Push(ctx, []byte("red"))
+		colours.Push(ctx, []byte("blue"))
+		colours.Push(ctx, []byte("yellow"))
+		colours.Push(ctx, []byte("green"))
+		colours.Push(ctx, []byte("purple"))
+		colours.Push(ctx, []byte("orange"))
+		colours.Push(ctx, []byte("orange"))
 		want := []string{"red", "blue", "yellow", "green", "purple", "orange", "brown"}
 		gotStrings := []string{}
 		for _, colour := range colours.All(ctx) {
-			gotStrings = append(gotStrings, colour.(string))
+			gotStrings = append(gotStrings, string(colour))
 		}
 		if !hasSameElements(gotStrings, want) {
 			t.Errorf("elements in list %v are not the same as %v", want, gotStrings)
@@ -109,13 +110,9 @@ func TestListCollection(t *testing.T) {
 		if err != nil {
 			t.Error(err)
 		}
-		genres.Push(ctx, "bacon")
-		genres.Push(ctx, "country")
-		genres.Push(ctx, "rap")
-		genres.Push(ctx, "jazz")
-		genres.Push(ctx, "classical")
-		genres.Push(ctx, "pop")
-		genres.Push(ctx, "Matilda")
+		for _, genre := range []string{"bacon", "country", "rap", "jazz", "classical", "pop", "Matilda"} {
+			genres.Push(ctx, []byte(genre))
+		}
 		got := genres.Size(ctx)
 		want := 7
 		if got != want {
@@ -131,10 +128,10 @@ func TestListCollection(t *testing.T) {
 		shiftedElement, _ := genres.Shift(ctx)
 		poppedElement, _ := genres.Pop(ctx)
 
-		if shiftedElement != "bacon" {
+		if string(shiftedElement) != "bacon" {
 			t.Errorf("wanted bacon but got %q", shiftedElement)
 		}
-		if poppedElement != "Matilda" {
+		if string(poppedElement) != "Matilda" {
 			t.Errorf("wanted Matilda but got %q", poppedElement)
 		}
 		got := genres.Size(ctx)

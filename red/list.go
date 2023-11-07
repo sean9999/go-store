@@ -34,42 +34,42 @@ func (s *Store) ListCollection(ctx context.Context, name string) (essence.ListCo
 	return lc, nil
 }
 
-func (lc *ListCollection) All(ctx context.Context) []any {
+func (lc *ListCollection) All(ctx context.Context) [][]byte {
 	length := lc.store.client.LLen(ctx, lc.Keyspace()).Val()
-	r := []any{}
+	r := [][]byte{}
 	for i := int64(0); i < length; i++ {
-		x := lc.store.client.LIndex(ctx, lc.Keyspace(), i).Val()
+		x, _ := lc.store.client.LIndex(ctx, lc.Keyspace(), i).Bytes()
 		r = append(r, x)
 	}
 	return r
 }
 
-func (lc *ListCollection) Head(ctx context.Context) (any, error) {
-	x, err := lc.store.client.LIndex(ctx, lc.Keyspace(), 0).Result()
+func (lc *ListCollection) Head(ctx context.Context) ([]byte, error) {
+	x, err := lc.store.client.LIndex(ctx, lc.Keyspace(), 0).Bytes()
 	return x, err
 }
 
-func (lc *ListCollection) Tail(ctx context.Context) (any, error) {
-	x, err := lc.store.client.LIndex(ctx, lc.Keyspace(), -1).Result()
+func (lc *ListCollection) Tail(ctx context.Context) ([]byte, error) {
+	x, err := lc.store.client.LIndex(ctx, lc.Keyspace(), -1).Bytes()
 	return x, err
 }
 
-func (lc *ListCollection) Pop(ctx context.Context) (any, error) {
-	x, err := lc.store.client.RPop(ctx, lc.Keyspace()).Result()
+func (lc *ListCollection) Pop(ctx context.Context) ([]byte, error) {
+	x, err := lc.store.client.RPop(ctx, lc.Keyspace()).Bytes()
 	return x, err
 }
 
-func (lc *ListCollection) Shift(ctx context.Context) (any, error) {
-	x, err := lc.store.client.LPop(ctx, lc.Keyspace()).Result()
+func (lc *ListCollection) Shift(ctx context.Context) ([]byte, error) {
+	x, err := lc.store.client.LPop(ctx, lc.Keyspace()).Bytes()
 	return x, err
 }
 
-func (lc *ListCollection) Push(ctx context.Context, val any) error {
+func (lc *ListCollection) Push(ctx context.Context, val []byte) error {
 	err := lc.store.client.RPush(ctx, lc.Keyspace(), val).Err()
 	return err
 }
 
-func (lc *ListCollection) Unshift(ctx context.Context, val any) error {
+func (lc *ListCollection) Unshift(ctx context.Context, val []byte) error {
 	err := lc.store.client.LPush(ctx, lc.Keyspace(), val).Err()
 	return err
 }

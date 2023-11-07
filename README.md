@@ -30,8 +30,8 @@ func main(){
 
     animals, _ := s.KeyValueCollection("animals")
     
-    animals.Set(ctx, "duck", "quack")
-    animals.Set(ctx, "dog", "barf")
+    animals.Set(ctx, "duck", []byte("quack"))
+    animals.Set(ctx, "dog", []byte("bark"))
 
     allAnimals := animals.GetAll(ctx)
 

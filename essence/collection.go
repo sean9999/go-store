@@ -15,23 +15,23 @@ type Collection interface {
 // a KeyValueCollection has methods allowing it to behave as a key-value store
 type KeyValueCollection interface {
 	Collection
-	Get(context.Context, string) (any, error)
-	Set(context.Context, string, any) error
+	Get(context.Context, string) ([]byte, error)
+	Set(context.Context, string, []byte) error
 	Keys(context.Context) []string
-	All(context.Context) map[string]any
+	All(context.Context) map[string][]byte
 	Destroy(context.Context) error
 }
 
 // a ListCollection has methods allowing it to be operated on as a list
 type ListCollection interface {
 	Collection
-	Pop(context.Context) (any, error)
-	Push(context.Context, any) error
-	Shift(context.Context) (any, error)
-	Unshift(context.Context, any) error
-	All(context.Context) []any
+	Pop(context.Context) ([]byte, error)
+	Push(context.Context, []byte) error
+	Shift(context.Context) ([]byte, error)
+	Unshift(context.Context, []byte) error
+	All(context.Context) [][]byte
 	Size(context.Context) int
-	Head(context.Context) (any, error)
-	Tail(context.Context) (any, error)
+	Head(context.Context) ([]byte, error)
+	Tail(context.Context) ([]byte, error)
 	Destroy(context.Context) error
 }
