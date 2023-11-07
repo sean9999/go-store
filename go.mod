@@ -1,6 +1,6 @@
 module github.com/sean9999/go-store
 
-go 1.21.1
+go 1.21.4
 
 require (
 	github.com/redis/go-redis/v9 v9.3.0
