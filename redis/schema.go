@@ -1,8 +1,14 @@
-package store
+package redis
 
 import (
 	"fmt"
 	"strings"
+
+	"github.com/sean9999/go-store/essence"
+)
+
+const (
+	schemaPrefix = ".store:schema"
 )
 
 // a schema-key registers the existence of a Collection in a Store
@@ -11,7 +17,7 @@ func ConstructSchemaKey(namespace, kind, name string) string {
 }
 
 // the path where a schema can be found
-func (s Store) SchemaKey(col Collection) string {
+func (s Store) SchemaKey(col essence.Collection) string {
 	return ConstructSchemaKey(s.Namespace, col.Kind(), col.Name())
 }
 

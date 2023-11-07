@@ -4,33 +4,47 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/sean9999/go-store"
+	"github.com/redis/go-redis/v9"
+	red "github.com/sean9999/go-store/redis"
 )
 
 func barfOn(e error, msg string) {
 	if e != nil {
-		fmt.Println("barf\t", msg)
+		fmt.Println("🤮\t", msg)
 		panic(e)
 	}
 }
 
 func main() {
 	ctx := context.Background()
-	store := store.NewStore("v6")
+	myStore := red.Attach("v6", &redis.Options{
+		Addr:     "localhost:6379",
+		Password: "",
+		DB:       0,
+	})
 
-	animals, err := store.GetKeyValueCollection("animals")
-	barfOn(err, "animals")
+	animals, _ := myStore.KeyValueCollection(ctx, "animals")
+	animals.Set(ctx, "bird", "chirp")
 
-	duck, err := animals.Get(ctx, "duck")
-	barfOn(err, "duck")
+	duckSays, _ := animals.Get(ctx, "duck")
+	fmt.Println("duckSays", duckSays)
 
-	fmt.Println("duck", duck)
-
-	truck, err := animals.Get(ctx, "Truck")
+	truckSays, err := animals.Get(ctx, "truck")
 	if err == nil {
-		fmt.Println("truck", truck)
+		fmt.Println("truckSays", truckSays)
 	} else {
 		fmt.Println("truck is not an animal", err)
 	}
+
+	colours, err := myStore.ListCollection(ctx, "colours")
+	barfOn(err, "colours")
+	err = colours.Push(ctx, "green")
+	barfOn(err, "green")
+	colours.Push(ctx, "blue")
+	colours.Push(ctx, "red")
+	colours.Push(ctx, "yellow")
+
+	all := colours.All(ctx)
+	fmt.Println(all)
 
 }
