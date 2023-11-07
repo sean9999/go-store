@@ -1,4 +1,4 @@
-package redis
+package red
 
 import (
 	"fmt"
@@ -17,7 +17,11 @@ type collection struct {
 
 // a fully-qualified namespace for the collection
 func (c *collection) Keyspace() string {
-	return fmt.Sprintf("%s:%s:%s", c.store.Namespace, c.Kind(), c.Name())
+	return fmt.Sprintf("%s:%s:%s", c.store.dataPrefix(), c.Kind(), c.Name())
+}
+
+func (c *collection) SchemaKey() string {
+	return fmt.Sprintf("%s:%s:%s", c.store.schemaPrefix(), c.Kind(), c.Name())
 }
 
 func LongToShort(long string) string {

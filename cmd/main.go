@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/redis/go-redis/v9"
-	red "github.com/sean9999/go-store/redis"
+	"github.com/sean9999/go-store/red"
 )
 
 func barfOn(e error, msg string) {
@@ -46,5 +46,8 @@ func main() {
 
 	all := colours.All(ctx)
 	fmt.Println(all)
+
+	colours.Destroy(ctx)
+	animals.Destroy(ctx)
 
 }

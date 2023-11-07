@@ -1,4 +1,4 @@
-package redis
+package red
 
 import (
 	"context"
@@ -29,15 +29,14 @@ func Attach(ns string, opts *redis.Options) *Store {
 		kv:   map[string]essence.KeyValueCollection{},
 		list: map[string]essence.ListCollection{},
 	}
-	rdb := redis.NewClient(opts)
 	s := Store{
 		Namespace:     ns,
-		client:        rdb,
+		client:        redis.NewClient(opts),
 		collectionMap: colMap,
 	}
 
 	//	remember collections
-	iter := s.client.Scan(ctx, 0, fmt.Sprintf("%s:%s:*", schemaPrefix, s.Namespace), 0).Iterator()
+	iter := s.client.Scan(ctx, 0, fmt.Sprintf("%s:*", s.schemaPrefix()), 0).Iterator()
 	for iter.Next(ctx) {
 		_, kind, colName := DeconstructSchemaKey(iter.Val())
 		switch kind {
@@ -90,18 +89,20 @@ func (s *Store) rememberCollection(ctx context.Context, kind, name string) error
 }
 
 // a LongKey is a fully-qualified key, taking into account the Store's namespace and collection's name
-func (s *Store) LongKey(col essence.Collection, lastBit string) string {
-	return fmt.Sprintf("%s:%s", col.Keyspace(), lastBit)
-}
+// func (s *Store) LongKey(col essence.Collection, lastBit string) string {
+// 	return fmt.Sprintf("%s:%s", col.Keyspace(), lastBit)
+// }
 
 // ensure that a collection has a schema-key
 func (s *Store) registerCollection(ctx context.Context, col essence.Collection) {
-	s.client.Incr(ctx, s.SchemaKey(col))
+	schemaKey := ConstructSchemaKeyForCollection(s, col)
+	s.client.Incr(ctx, schemaKey)
 }
 
 // remove the schema-key
 func (s *Store) deregisterCollection(ctx context.Context, col essence.Collection) {
-	s.client.Del(ctx, s.SchemaKey(col))
+	schemaKey := ConstructSchemaKeyForCollection(s, col)
+	s.client.Del(ctx, schemaKey)
 }
 
 // add a collection the Store's Collection map so it can be accessed
@@ -119,7 +120,9 @@ func (s *Store) RemoveCollection(ctx context.Context, col essence.Collection) {
 
 	switch col.Kind() {
 	case "kv":
+		//	delete the collection
 		delete(s.collectionMap.kv, col.Name())
+		//	delete the schema
 		s.deregisterCollection(ctx, col)
 	case "list":
 		delete(s.collectionMap.list, col.Name())

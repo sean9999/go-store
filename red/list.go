@@ -1,4 +1,4 @@
-package redis
+package red
 
 import (
 	"context"
@@ -11,7 +11,12 @@ type ListCollection struct {
 }
 
 func (lc *ListCollection) Destroy(ctx context.Context) error {
-	return lc.store.client.LTrim(ctx, lc.Keyspace(), 0, -1).Err()
+	//err := lc.store.client.LTrim(ctx, lc.Keyspace(), 1, 0).Err()
+	err := lc.store.client.Del(ctx, lc.Keyspace()).Err()
+	if err == nil {
+		lc.store.RemoveCollection(ctx, lc)
+	}
+	return err
 }
 
 func (s *Store) ListCollection(ctx context.Context, name string) (essence.ListCollection, error) {

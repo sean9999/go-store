@@ -1,4 +1,4 @@
-package redis
+package red
 
 import (
 	"context"
@@ -7,7 +7,7 @@ import (
 	"github.com/sean9999/go-store/essence"
 )
 
-// a KeyValueCollection is a GenericCollection with methods suitable to a key-value store
+// a KeyValueCollection is a collection that can operate on key-value pairs
 type KeyValueCollection struct {
 	collection
 }
@@ -16,9 +16,16 @@ func (kv *KeyValueCollection) Destroy(ctx context.Context) error {
 	shortKeys := kv.Keys(ctx)
 	longKeys := make([]string, len(shortKeys))
 	for i, k := range shortKeys {
-		longKeys[i] = kv.store.LongKey(kv, string(k))
+		longKey := fmt.Sprintf("%s:%s", kv.Keyspace(), k)
+		longKeys[i] = longKey
 	}
-	return kv.store.client.Del(ctx, longKeys...).Err()
+	//	delete the data from redis
+	err := kv.store.client.Del(ctx, longKeys...).Err()
+	if err == nil {
+		//	delete the collection itself
+		kv.store.RemoveCollection(ctx, kv)
+	}
+	return err
 }
 
 func (s *Store) KeyValueCollection(ctx context.Context, name string) (essence.KeyValueCollection, error) {
@@ -37,13 +44,13 @@ func (s *Store) KeyValueCollection(ctx context.Context, name string) (essence.Ke
 }
 
 func (kv *KeyValueCollection) Get(ctx context.Context, shortKey string) (any, error) {
-	longKey := kv.store.LongKey(kv, shortKey)
+	longKey := fmt.Sprintf("%s:%s", kv.Keyspace(), shortKey)
 	val, err := kv.store.client.Get(ctx, longKey).Result()
 	return val, err
 }
 
 func (kv *KeyValueCollection) Set(ctx context.Context, shortKey string, v any) error {
-	longKey := kv.store.LongKey(kv, shortKey)
+	longKey := fmt.Sprintf("%s:%s", kv.Keyspace(), shortKey)
 	err := kv.store.client.Set(ctx, longKey, v, 0).Err()
 	return err
 }
@@ -60,11 +67,11 @@ func (kv *KeyValueCollection) Keys(ctx context.Context) []string {
 
 func (kv *KeyValueCollection) All(ctx context.Context) map[string]any {
 	m := map[string]any{}
-	store := kv.store
 	shortKeys := kv.Keys(ctx)
 	longKeys := make([]string, len(shortKeys))
 	for i, k := range shortKeys {
-		longKeys[i] = store.LongKey(kv, string(k))
+		longKey := fmt.Sprintf("%s:%s", kv.Keyspace(), k)
+		longKeys[i] = longKey
 	}
 	objs := kv.store.client.MGet(ctx, longKeys...).Val()
 	for i, k := range shortKeys {
